@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 
 from src.parameters import Parameters
 from src.preprocessing import LabeledTexts
-from src import TextClassifier
+from src.model import TextClassifier
 
 
 class DatasetMapper(Dataset):
