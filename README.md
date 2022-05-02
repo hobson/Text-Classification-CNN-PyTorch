@@ -1,5 +1,5 @@
 [![Substack][substack-shield]][substack-url]
-[![Nitter][twitter-shield]][nitter-url]
+[![Nitter][nitter-shield]][nitter-url]
 [![Mastodon][mastodon-shield]][mastodon-url]
 [![Linkedin][linkedin-shield]][linkedin-url]
 
