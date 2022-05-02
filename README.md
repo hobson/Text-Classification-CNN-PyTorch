@@ -39,7 +39,7 @@ In addition, a baseline LinearModel (a single-layer perceptron, or fully-connect
 [substack-url]: https://proai.substack.com
 
 [mastodon-shield]: https://img.shields.io/mastodon/follow/@hobson?style=social
-[mastodon-url]: https://mastodon.social/@hobson
+[mastodon-url]: https://mastodon.social/users/hobson
 
 [nitter-url]: https://nitter.net/hobsonlane
 [nitter-shield]: https://nitter.net/hobsonlane
