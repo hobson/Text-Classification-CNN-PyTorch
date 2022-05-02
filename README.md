@@ -13,15 +13,54 @@ He has some nice diagrams in his Medium (PAYWALL) blog post [Text Classification
 
 ## Preprocessing
 
-1. load_data()
-2. clean_text() (remove stopwords and lowercase)
-3. self.texts.text_tokenization() (only recognizes letters)
-4. build_vocabulary()
-5. word_to_idx()
-6. padding_sentences()
-7. split_data()
+For the book we improved the Fernando's pipeline to make it more readable, pythonic, and accurate.
+Just as in previous chapters (and in general), you do not want to use case folding or stopword removal for your first model.
+Give your model all the information you can for the first attempt at training it.
+You only need to filter stopwords and lowercase your text if you have a dimensionality problem (information overload).
+You can tune your model later to deal with overfitting or slow convergence.
+Usually there are more effective approaches to dealing with overfitting.
 
-The preprocessing pipeline here is the same one we used for chapters 1-6 in [NLPiA](proai.org/nlpia-book)
+The preprocessing pipeline here is the same one we used for chapters 1-6 in [NLPiA](proai.org/nlpia-book).
+You can see where we've changed the implementation suggested by Fernando.
+
+1. Simplified: load the CSV
+
+`df = pd.read_csv(filepath, usecols=['text', 'target'])`
+
+2. NOPE: case folding:
+
+`texts = df['texts'].lower()`
+
+3. NOPE: remove non-letters (nonalpha):
+
+`re.sub(r'[^A-Za-z]', text, ' ')`
+
+4. NOPE: remove stopwords
+
+5. Simplified: tokenize with regex
+
+`tokenized_texts = map(re.compile(r'\w+').findall, texts)`
+
+6. Simplified: filter infrequent words
+
+`counts = Counter(chain(*tokenized_texts))`
+`id2tok = vocab = list(counts.most_common(200))`
+
+7. Simplified: compute reverse index
+
+`tok2id = dict(zip(idx2tok, range(len(id2tok))))`
+
+8. Simplified: transform token sequences to integer id sequences
+
+`id_sequences = [[tok2id[tok] for tok in tokens] for tokens in tokenized_texts]`
+
+9. Simplified: pad token id sequences
+
+
+10. Simplified: train_test_split
+
+x_train, y_train, x_test, y_test = train_test_split(x=texts, y=df['targets'])
+
 This is common in PyTorch implementations, but the integers are never used as the input to a Deep Learning model because the numerical values of word indices do not contain any information about the words themselves other than their position in a one-hot vector.
 The index values are arbitrary and destroy all the information contained in a sentence.
 The numerical values of word indices contain no information about the meaning of the words. Word indices are fundamentally a categorical variable, not an ordinal or numerical value.

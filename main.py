@@ -1,5 +1,10 @@
-import re
+from collections import Counter
+from dataclasses import dataclass
+from itertools import chain
 from pathlib import Path
+import re
+
+from sklearn.model_selection import train_test_split
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
@@ -7,14 +12,136 @@ from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
-from cnn.parameters import Parameters
-from cnn.preprocessing import LabeledTexts
 from cnn.model import TextClassifier
 
 import pandas as pd
-
 import spacy
+
+DATA_DIR = Path(__file__).parent / 'data'
+
+
+@dataclass(init=True, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False)
+class Parameters:
+    seq_len: int = 35
+    num_words: int = 2000
+
+    # Model parameters
+    embedding_size: int = 64
+    out_size: int = 32
+    stride: int = 2
+
+    # Training parameters
+    epochs: int = 10
+    batch_size: int = 12
+    learning_rate: float = 0.001
+
+
+HYPERPARAMS = Parameters()
+
+
 nlp = spacy.load('en_core_web_md')
+
+
+def pad(sequence, pad_value=0, seq_len=HYPERPARAMS.seq_len):
+    seq = list(sequence)[:seq_len]
+    return seq + [pad_value] * (len(seq) - seq_len)
+
+
+def tokenize_nlp(doc):
+    return [tok.text for tok in nlp(doc) if tok.text.strip()]
+
+
+def tokenize_re(doc):
+    return [tok for tok in re.findall(r'\w+', doc)]
+
+
+def load_dataset_spacy(filepath='tweets.csv'):
+    """ load and preprocess csv file: return [(token id sequences, label)...]
+
+    1. Simplified: load the CSV
+    2. NOPE: case folding:
+    3. NOPE: remove non-letters (nonalpha):
+    4. NOPE: remove stopwords
+    5. Simplified: tokenize with regex
+    6. Simplified: filter infrequent words
+    7. Simplified: compute reverse index
+    8. Simplified: transform token sequences to integer id sequences
+    9. Simplified: pad token id sequences
+    10. Simplified: train_test_split
+    """
+
+    if not Path(filepath).is_file():
+        filepath = DATA_DIR / 'tweets.csv'
+
+    # 1. Simplified: load the CSV
+
+    df = pd.read_csv(filepath, usecols=['text', 'target'])
+
+    # 2. NOPE: case folding:
+
+    texts = map(str.lower, df['texts'])
+
+    # 3. NOPE: remove non-letters (nonalpha):
+    # texts = re.sub(r'[^A-Za-z]', t, ' ') for t in texts]
+    # 4. NOPE: remove stopwords
+    # 5. Simplified: tokenize with regex
+
+    tokenized_texts = map(re.compile(r'\w+').findall, texts)
+
+    # 6. Simplified: filter infrequent words
+
+    counts = Counter(chain(*tokenized_texts))
+    vocab = ['<PAD>'] + list(counts.most_common(HYPERPARAMS.num_words))
+
+    # 7. Simplified: compute reverse index
+
+    tok2id = dict(zip(vocab, range(len(vocab))))
+
+    # 8. Simplified: transform token sequences to integer id sequences
+
+    id_sequences = [map(tok2id.get, seq) for seq in tokenized_texts]
+
+    # 9. Simplified: pad token id sequences
+
+    id_sequences = [map(pad, seq) for seq in id_sequences]
+
+    # 10. Simplified: train_test_split
+
+    return dict(zip(
+        'x_train x_test y_train y_test'.split(),
+        train_test_split(
+            X=id_sequences,
+            y=df['target'],
+            test_size=HYPERPARAMS.test_size,
+            random_state=0)))
+
+
+def load_dataset_re():
+    data_filepath = Path('data') / 'tweets.csv'
+    df = pd.read_csv(data_filepath.open(), usecols='text target'.split())
+    texts = df['text'].values
+    targets = df['target'].values
+    texts = [re.sub(r'[^A-Za-z0-9.?!]+', ' ', x) for x in texts]
+    texts = [tokenize_nlp(doc) for doc in tqdm(texts)]
+    counts = Counter(chain(*texts))
+    vocab = ['<PAD>'] + list(counts.most_common(HYPERPARAMS))
+    tok2id = dict(zip(vocab, range(len(vocab))))
+
+    # 8. Simplified: transform token sequences to integer id sequences
+
+    id_sequences = [map(tok2id.get, seq) for seq in texts]
+
+    # 9. Simplified: pad token id sequences
+
+    id_sequences = [map(pad, seq) for seq in id_sequences]
+
+    return dict(zip(
+        'x_train x_test y_train y_test'.split(),
+        train_test_split(
+            X=id_sequences,
+            y=targets,
+            test_size=HYPERPARAMS.test_size,
+            random_state=0)))
 
 
 class DatasetMapper(Dataset):
@@ -41,39 +168,17 @@ class Controller(Parameters):
         # Training - Evaluation pipeline
         self.train()
 
-    def prepare_data(self):
-        self.texts = LabeledTexts(parameters=super())
-
-        data_filepath = Path('data') / 'tweets.csv'
-        df = pd.read_csv(data_filepath.open(), usecols='text target'.split())
-        texts = df['text'].values
-        targets = df['target'].values
-        texts = [re.sub(r'[^A-Za-z0-9.?!]+', ' ', x) for x in texts]
-        self.texts.x = []
-        for txt in tqdm(texts):
-            self.texts.x.append([tok.text for tok in nlp(txt)])
-        self.texts.build_vocabulary()
-        self.texts.word_to_idx()
-        self.texts.padding_sentences()
-        self.texts.y = targets
-        self.texts.split_data()
-
-        self.x_train = self.texts.x_train
-        self.y_train = self.texts.y_train
-        self.x_test = self.texts.x_test
-        self.y_test = self.texts.y_test
+        # self.x_train, self.y_train, self.x_test, self.y_test:
+        self.__dict__.update(load_dataset_re())
 
     def train(self):
 
-        # Initialize dataset maper
         self.trainset_mapper = DatasetMapper(self.x_train, self.y_train)
         self.testset_mapper = DatasetMapper(self.x_test, self.y_test)
 
-        # Initialize loaders
         self.loader_train = DataLoader(self.trainset_mapper, batch_size=self.batch_size)
         self.loader_test = DataLoader(self.testset_mapper, batch_size=self.batch_size)
 
-        # Define optimizer
         optimizer = optim.RMSprop(self.model.parameters(), lr=self.learning_rate)
 
         # Starts training phase
