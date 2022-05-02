@@ -4,9 +4,9 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 
-from src.parameters import Parameters
-from src.preprocessing import LabeledTexts
-from src.model import TextClassifier
+from cnn.parameters import Parameters
+from cnn.preprocessing import LabeledTexts
+from cnn.model import TextClassifier
 
 
 class DatasetMapper(Dataset):
@@ -35,21 +35,21 @@ class Controller(Parameters):
 
     def prepare_data(self):
 
-        labeled_texts = LabeledTexts(parameters=super())
+        self.texts = LabeledTexts(parameters=super())
 
         # port to functional programming style with no hidden side-effects
-        labeled_texts.load_data()
-        labeled_texts.clean_text()
-        labeled_texts.text_tokenization()
-        labeled_texts.build_vocabulary()
-        labeled_texts.word_to_idx()
-        labeled_texts.padding_sentences()
-        labeled_texts.split_data()
+        self.texts.load_data()
+        self.texts.clean_text()
+        self.texts.text_tokenization()
+        self.texts.build_vocabulary()
+        self.texts.word_to_idx()
+        self.texts.padding_sentences()
+        self.texts.split_data()
 
-        self.x_train = labeled_texts.x_train
-        self.y_train = labeled_texts.y_train
-        self.x_test = labeled_texts.x_test
-        self.y_test = labeled_texts.y_test
+        self.x_train = self.texts.x_train
+        self.y_train = self.texts.y_train
+        self.x_test = self.texts.x_test
+        self.y_test = self.texts.y_test
 
     def train(self):
 

@@ -4,7 +4,7 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from src.parameters import Parameters
+from cnn.parameters import Parameters
 
 
 def word_tokenize(text):
@@ -35,12 +35,11 @@ class LabeledTexts:
         self.y_test = None
 
     def load_data(self):
-        # Reads the raw csv file and split into texts (sentences) (x) and target label (y)
-        df = pd.read_csv(self.data_filepath.open())
-        df.drop(['id', 'keyword', 'location'], axis=1, inplace=True)
+        self.df = pd.read_csv(self.data_filepath.open())
+        self.df.drop(['id', 'keyword', 'location'], axis=1, inplace=True)
 
-        self.x = df['text'].values
-        self.y = df['target'].values
+        self.x = self.df['text'].values
+        self.y = self.df['target'].values
 
     def clean_text(self):
         # Removes special symbols and just keep
