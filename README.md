@@ -1,12 +1,13 @@
-[![Medium][medium-shield]][medium-url]
-[![Twitter][twitter-shield]][twitter-url]
+[![Substack][substack-shield]][substack-url]
+[![Nitter][twitter-shield]][nitter-url]
+[![Mastodon][mastodon-shield]][mastodon-url]
 [![Linkedin][linkedin-shield]][linkedin-url]
 
 # Corrected Text Classification with CNNs
 
 ## Text Classification with CNNs in PyTorch 
 
-Fernando Lopez attempted to implement the architecture proposed in the paper [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/pdf/1408.5882.pdf).
+[Fernando Lopez][linkedin-fernando] ([@FernandoLpz](https://github.com/FernandoLpz)) attempted to implement the architecture proposed in the paper [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/pdf/1408.5882.pdf).
 He even drew up some nice diagrams in his Mediam blog post [Text Classification with CNNs in PyTorch](https://medium.com/@fer.neutron/text-classification-with-cnns-in-pytorch-1113df31e79f?sk=12e7c4b3092297ee0e1c71d659297043).
 I don't use Medium because of their exploitative and deceptive business practices.
 So I couldn't comment on his blog post to explain the error in his implementation.
@@ -33,9 +34,17 @@ In addition, a baseline LinearModel (a single-layer perceptron, or fully-connect
 
 ## Links
 
-[medium-shield]: https://img.shields.io/badge/medium-%2312100E.svg?&style=for-the-badge&logo=medium&logoColor=white
-[medium-url]: https://medium.com/@fer.neutron
-[twitter-shield]: https://img.shields.io/badge/twitter-%231DA1F2.svg?&style=for-the-badge&logo=twitter&logoColor=white
-[twitter-url]: https://twitter.com/Fernando_LpzV
+
+[substack-shield]: https://img.shields.io/badge/substack-%2312100E.svg?&style=for-the-badge&logo=medium&logoColor=white
+[substack-url]: https://proai.substack.com
+
+[mastodon-shield]: https://img.shields.io/mastodon/follow/hobson?style=social
+[mastodon-url]: https://mastodon.social/@hobson
+
+[nitter-url]: https://nitter.net/hobsonlane
+[nitter-shield]: https://nitter.net/hobsonlane
+
 [linkedin-shield]: https://img.shields.io/badge/linkedin-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white
-[linkedin-url]: https://www.linkedin.com/in/fernando-lopezvelasco/
+[linkedin-url]: https://www.linkedin.com/in/hobsonlane/
+
+[linkedin-fernando]: https://www.linkedin.com/in/fernando-lopezvelasco/
