@@ -1,12 +1,20 @@
+import re
+from pathlib import Path
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 from cnn.parameters import Parameters
 from cnn.preprocessing import LabeledTexts
 from cnn.model import TextClassifier
+
+import pandas as pd
+
+import spacy
+nlp = spacy.load('en_core_web_md')
 
 
 class DatasetMapper(Dataset):
@@ -34,16 +42,20 @@ class Controller(Parameters):
         self.train()
 
     def prepare_data(self):
-
         self.texts = LabeledTexts(parameters=super())
 
-        # port to functional programming style with no hidden side-effects
-        self.texts.load_data()
-        self.texts.clean_text()
-        self.texts.text_tokenization()
+        data_filepath = Path('data') / 'tweets.csv'
+        df = pd.read_csv(data_filepath.open(), usecols='text target'.split())
+        texts = df['text'].values
+        targets = df['target'].values
+        texts = [re.sub(r'[^A-Za-z0-9.?!]+', ' ', x) for x in texts]
+        self.texts.x = []
+        for txt in tqdm(texts):
+            self.texts.x.append([tok.text for tok in nlp(txt)])
         self.texts.build_vocabulary()
         self.texts.word_to_idx()
         self.texts.padding_sentences()
+        self.texts.y = targets
         self.texts.split_data()
 
         self.x_train = self.texts.x_train

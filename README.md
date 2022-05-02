@@ -8,9 +8,20 @@
 ## Text Classification with CNNs in PyTorch 
 
 Re-implementation, simplification of [Fernando Lopez][linkedin-fernando]'s ([@FernandoLpz](https://github.com/FernandoLpz)) [Text Classification CNN](https://github.com/FernandoLpz/Text-Classification-CNN-PyTorch) which he based on the paper "[Convolutional Neural Networks for Sentence Classification](https://arxiv.org/pdf/1408.5882.pdf)."
-He has some nice diagrams in his Medium (PAYWALLED) blog post [Text Classification with CNNs in PyTorch ](https://12ft.io/proxy?q=https%3A%2F%2Ftowardsdatascience.com%2Ftext-classification-with-cnns-in-pytorch-1113df31e79f).
+He has some nice diagrams in his Medium (PAYWALL) blog post [Text Classification with CNNs in PyTorch ](https://12ft.io/proxy?q=https%3A%2F%2Ftowardsdatascience.com%2Ftext-classification-with-cnns-in-pytorch-1113df31e79f).
 
-Fernando represented the sentences (sequences of words) as sequences of integers.
+
+## Preprocessing
+
+1. load_data()
+2. clean_text() (remove stopwords and lowercase)
+3. self.texts.text_tokenization() (only recognizes letters)
+4. build_vocabulary()
+5. word_to_idx()
+6. padding_sentences()
+7. split_data()
+
+The preprocessing pipeline here is the same one we used for chapters 1-6 in [NLPiA](proai.org/nlpia-book)
 This is common in PyTorch implementations, but the integers are never used as the input to a Deep Learning model because the numerical values of word indices do not contain any information about the words themselves other than their position in a one-hot vector.
 The index values are arbitrary and destroy all the information contained in a sentence.
 The numerical values of word indices contain no information about the meaning of the words. Word indices are fundamentally a categorical variable, not an ordinal or numerical value.

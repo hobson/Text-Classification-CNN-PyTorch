@@ -41,17 +41,6 @@ class LabeledTexts:
         self.x = self.df['text'].values
         self.y = self.df['target'].values
 
-    def clean_text(self):
-        # Removes special symbols and just keep
-        # words in lower or upper form
-
-        self.x = [x.lower() for x in self.x]
-        self.x = [re.sub(r'[^A-Za-z]+', ' ', x) for x in self.x]
-
-    def text_tokenization(self):
-        # Tokenizes each sentence by implementing the nltk tool
-        self.x = [word_tokenize(x) for x in self.x]
-
     def build_vocabulary(self):
         # Builds the vocabulary and keeps the "x" most frequent words
         self.vocabulary = dict()
