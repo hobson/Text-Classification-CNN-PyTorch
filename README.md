@@ -35,10 +35,10 @@ In addition, a baseline LinearModel (a single-layer perceptron, or fully-connect
 ## Links
 
 
-[substack-shield]: https://img.shields.io/badge/substack-%2312100E.svg?&style=for-the-badge&logo=medium&logoColor=white
+[substack-shield]: https://proai.substack.com
 [substack-url]: https://proai.substack.com
 
-[mastodon-shield]: https://img.shields.io/mastodon/follow/hobson?style=social
+[mastodon-shield]: https://img.shields.io/mastodon/follow/@hobson?style=social
 [mastodon-url]: https://mastodon.social/@hobson
 
 [nitter-url]: https://nitter.net/hobsonlane
