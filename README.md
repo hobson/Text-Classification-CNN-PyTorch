@@ -7,10 +7,8 @@
 
 ## Text Classification with CNNs in PyTorch 
 
-[Fernando Lopez][linkedin-fernando] ([@FernandoLpz](https://github.com/FernandoLpz)) attempted to implement the architecture proposed in the paper [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/pdf/1408.5882.pdf).
-He even drew up some nice diagrams in his Mediam blog post [Text Classification with CNNs in PyTorch](https://medium.com/@fer.neutron/text-classification-with-cnns-in-pytorch-1113df31e79f?sk=12e7c4b3092297ee0e1c71d659297043).
-I don't use Medium because of their exploitative and deceptive business practices.
-So I couldn't comment on his blog post to explain the error in his implementation.
+Re-implementation, simplification of [Fernando Lopez][linkedin-fernando]'s ([@FernandoLpz](https://github.com/FernandoLpz)) [Text Classification CNN](https://github.com/FernandoLpz/Text-Classification-CNN-PyTorch) which he based on the paper "[Convolutional Neural Networks for Sentence Classification](https://arxiv.org/pdf/1408.5882.pdf)."
+He has some nice diagrams in his Medium (PAYWALLED) blog post [Text Classification with CNNs in PyTorch ](https://12ft.io/proxy?q=https%3A%2F%2Ftowardsdatascience.com%2Ftext-classification-with-cnns-in-pytorch-1113df31e79f).
 
 Fernando represented the sentences (sequences of words) as sequences of integers.
 This is common in PyTorch implementations, but the integers are never used as the input to a Deep Learning model because the numerical values of word indices do not contain any information about the words themselves other than their position in a one-hot vector.
