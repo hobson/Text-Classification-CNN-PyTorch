@@ -1,6 +1,8 @@
-[![Medium][medium - shield]][medium - url]
-[![Twitter][twitter - shield]][twitter - url]
-[![Linkedin][linkedin - shield]][linkedin - url]
+[![Medium][medium-shield]][medium-url]
+
+[![Twitter][twitter-shield]][twitter-url]
+
+[![Linkedin][linkedin-shield]][linkedin-url]
 
 # Corrected Text Classification with CNNs
 
