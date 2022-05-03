@@ -34,6 +34,7 @@ class Parameters:
     epochs: int = 10
     batch_size: int = 12
     learning_rate: float = 0.001
+    test_size = 0.1
 
 
 HYPERPARAMS = Parameters()
@@ -43,8 +44,11 @@ nlp = spacy.load('en_core_web_md')
 
 
 def pad(sequence, pad_value=0, seq_len=HYPERPARAMS.seq_len):
-    seq = list(sequence)[:seq_len]
-    return seq + [pad_value] * (len(seq) - seq_len)
+    print(sequence)
+    padded = list(sequence)[:seq_len]
+    print(padded)
+    padded = padded + [pad_value] * (seq_len - len(padded))
+    return padded
 
 
 def tokenize_nlp(doc):
@@ -91,7 +95,7 @@ def load_dataset_spacy(filepath='tweets.csv'):
     # 6. Simplified: filter infrequent words
 
     counts = Counter(chain(*tokenized_texts))
-    vocab = ['<PAD>'] + list(counts.most_common(HYPERPARAMS.num_words))
+    vocab = ['<PAD>'] + [x[0] for x in counts.most_common(HYPERPARAMS.num_words)]
 
     # 7. Simplified: compute reverse index
 
@@ -103,7 +107,7 @@ def load_dataset_spacy(filepath='tweets.csv'):
 
     # 9. Simplified: pad token id sequences
 
-    id_sequences = [map(pad, seq) for seq in id_sequences]
+    id_sequences = [list(map(pad, seq)) for seq in id_sequences]
 
     # 10. Simplified: train_test_split
 
@@ -122,24 +126,27 @@ def load_dataset_re():
     texts = df['text'].values
     targets = df['target'].values
     texts = [re.sub(r'[^A-Za-z0-9.?!]+', ' ', x) for x in texts]
-    texts = [tokenize_nlp(doc) for doc in tqdm(texts)]
+    texts = [tokenize_re(doc) for doc in tqdm(texts)]
     counts = Counter(chain(*texts))
-    vocab = ['<PAD>'] + list(counts.most_common(HYPERPARAMS))
+    vocab = ['<PAD>'] + [x[0] for x in counts.most_common(HYPERPARAMS.num_words)]
     tok2id = dict(zip(vocab, range(len(vocab))))
 
     # 8. Simplified: transform token sequences to integer id sequences
 
-    id_sequences = [map(tok2id.get, seq) for seq in texts]
+    id_sequences = [[i for i in map(tok2id.get, seq) if i is not None] for seq in texts]
 
     # 9. Simplified: pad token id sequences
 
-    id_sequences = [map(pad, seq) for seq in id_sequences]
+    padded_sequences = []
+    for s in id_sequences:
+        padded_sequences.append(pad(s))
+    padded_sequences = torch.IntTensor(padded_sequences)
 
     return dict(zip(
         'x_train x_test y_train y_test'.split(),
         train_test_split(
-            X=id_sequences,
-            y=targets,
+            padded_sequences,
+            targets,
             test_size=HYPERPARAMS.test_size,
             random_state=0)))
 
@@ -160,16 +167,10 @@ class DatasetMapper(Dataset):
 class Controller(Parameters):
 
     def __init__(self):
-        self.prepare_data()
-
-        # Initialize the model
-        self.model = TextClassifier(Parameters)
-
-        # Training - Evaluation pipeline
-        self.train()
-
         # self.x_train, self.y_train, self.x_test, self.y_test:
         self.__dict__.update(load_dataset_re())
+        self.model = TextClassifier(HYPERPARAMS)
+        self.train()
 
     def train(self):
 
@@ -181,38 +182,21 @@ class Controller(Parameters):
 
         optimizer = optim.RMSprop(self.model.parameters(), lr=self.learning_rate)
 
-        # Starts training phase
         for epoch in range(self.epochs):
-            # Set model in training model
             self.model.train()
             predictions = []
-            # Starts batch training
             for x_batch, y_batch in self.loader_train:
-
                 y_batch = y_batch.type(torch.FloatTensor)
-
-                # Feed the model
                 y_pred = self.model(x_batch)
-
-                # Loss calculation
                 loss = F.binary_cross_entropy(y_pred, y_batch)
-
-                # Clean gradientes
                 optimizer.zero_grad()
-
-                # Gradients calculation
                 loss.backward()
-
-                # Gradients update
                 optimizer.step()
 
                 # Save predictions
                 predictions += list(y_pred.detach().numpy())
 
-            # Evaluation phase
             test_predictions = self.predict()
-
-            # Metrics calculation
             train_accuary = self.calculate_accuracy(self.y_train, predictions)
             test_accuracy = self.calculate_accuracy(self.y_test, test_predictions)
             print("Epoch: %d, loss: %.5f, Train accuracy: %.5f, Test accuracy: %.5f" % (epoch + 1, loss.item(), train_accuary, test_accuracy))
