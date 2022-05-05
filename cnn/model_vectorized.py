@@ -40,7 +40,7 @@ class CNNTextClassifier(nn.ModuleList):
         self.encoding_size = self.cnn_output_size()
         print(f'encoding_size: {self.encoding_size}')
         # Fully connected layer definition
-        self.fc = nn.Linear(self.encoding_size, 1)
+        self.linear_layer = nn.Linear(self.encoding_size, 1)
 
     def cnn_output_size(self):
         """ Calculate the number of encoding dimensions output from CNN layers
@@ -50,17 +50,21 @@ class CNNTextClassifier(nn.ModuleList):
 
         source: https://pytorch.org/docs/stable/generated/torch.nn.Conv1d.html
         """
+        out_conv_1 = ((self.embedding_size - 1 * (self.kernel_lengths[0] - 1) - 1) / self.stride) + 1
+        out_conv_1 = math.floor(out_conv_1)
+        out_pool_1 = ((out_conv_1 - 1 * (self.kernel_lengths[0] - 1) - 1) / self.stride) + 1
+        out_pool_1 = math.floor(out_pool_1)
 
         # default: 4 CNN layers with max pooling
         # for kernel_len, stride in zip(convolvers, poolers):
         #     self.convolutions.append(nn.Conv1d(self.seq_len, self.encoding_size, kernel_len, stride))
         #     self.poolers.append(nn.MaxPool1d(kernel_len, stride))
         out_pool = 0
-        # for kernel_len, stride in zip(self.kernel_lengths, self.strides):
+        for kernel_len, stride in zip(self.kernel_lengths, self.strides):
         out_conv = ((self.embedding_size - 1 * (self.kernel_lengths[0] - 1) - 1) / self.stride) + 1
         out_conv = math.floor(out_conv)
         out_pool = ((out_conv - 1 * (self.kernel_lengths[0] - 1) - 1) / self.strides[0]) + 1
-        out_pool += math.floor(out_pool)
+        out_pool = math.floor(out_pool)
 
         out_conv_2 = ((self.embedding_size - 1 * (self.kernel_lengths[1] - 1) - 1) / self.stride) + 1
         out_conv_2 = math.floor(out_conv_2)
@@ -78,7 +82,7 @@ class CNNTextClassifier(nn.ModuleList):
         out_pool_4 = math.floor(out_pool_4)
 
         # Returns "flattened" vector (input for fully connected layer)
-        return math.floor((out_pool + out_pool_2 + out_pool_3 + out_pool_4) * self.encoding_size)
+        return (out_pool + out_pool_2 + out_pool_3 + out_pool_4) * self.conv_output_size
 
     def forward(self, x):
         """ Takes sequence of integers (token indices) and outputs binary class label """
@@ -97,7 +101,7 @@ class CNNTextClassifier(nn.ModuleList):
         union = union.reshape(union.size(0), -1)
 
         # The "flattened" vector is passed through a fully connected layer
-        out = self.fc(union)
+        out = self.linear_layer(union)
         # Dropout is applied
         out = self.dropout(out)
         # Activation function is applied
