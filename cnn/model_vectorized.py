@@ -27,9 +27,11 @@ class CNNTextClassifier(nn.ModuleList):
         self.embedding = nn.Embedding(self.vocab_size + 1, self.embedding_size, padding_idx=0)
 
         # default: 4 CNN layers with max pooling
-        for kernel_len, stride in zip(self.kernel_lengths, self.strides):
+        for i, (kernel_len, stride) in enumerate(zip(self.kernel_lengths, self.strides)):
             self.convolvers.append(nn.Conv1d(self.seq_len, self.encoding_size, kernel_len, stride))
+            # setattr(self, f'conv_{i + 1}', self.convolvers[i])
             self.poolers.append(nn.MaxPool1d(kernel_len, stride))
+            # setattr(self, f'pool_{i + 1}', self.poolers[i])
 
         self.encoding_size = self.cnn_output_size()
         print(f'encoding_size: {self.encoding_size}')
@@ -79,22 +81,12 @@ class CNNTextClassifier(nn.ModuleList):
 
         x = self.embedding(x)
 
-        x1 = self.convolvers[0](x)
-        x1 = torch.relu(x1)
-        x1 = self.poolers[0](x1)
-
-        x2 = self.convolvers[1](x)
-        x2 = torch.relu((x2))
-        x2 = self.poolers[1](x2)
-
-        x3 = self.convolvers[2](x)
-        x3 = torch.relu(x3)
-        x3 = self.poolers[2](x3)
-
-        # Convolution layer 4 is applied
-        x4 = self.convolvers[3](x)
-        x4 = torch.relu(x4)
-        x4 = self.poolers[3](x4)
+        conv_outputs = []
+        for (conv, pool) in zip(self.convolvers, self.poolers):
+            z = conv(x)
+            z = torch.relu(z)
+            z = pool(z)
+            conv_outputs.append(z)
 
         # The output of each convolutional layer is concatenated into a unique vector
         union = torch.cat((x1, x2, x3, x4), 2)

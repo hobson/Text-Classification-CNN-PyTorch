@@ -6,7 +6,7 @@ import torch.nn as nn
 class TextClassifier(nn.ModuleList):
 
     def __init__(self, params):
-        super(TextClassifier, self).__init__()
+        super().__init__()
 
         self.seq_len = params.seq_len
         self.num_words = params.num_words
@@ -38,9 +38,9 @@ class TextClassifier(nn.ModuleList):
         # default: 4 CNN layers with max pooling
         for i, (kernel_len, stride) in enumerate(zip(self.kernel_lengths, self.strides)):
             self.convolvers.append(nn.Conv1d(self.seq_len, self.encoding_size, kernel_len, stride))
-            setattr(self, f'conv_{i + 1}', self.convolvers[i])
+            # setattr(self, f'conv_{i + 1}', self.convolvers[i])
             self.poolers.append(nn.MaxPool1d(kernel_len, stride))
-            setattr(self, f'pool_{i + 1}', self.poolers[i])
+            # setattr(self, f'pool_{i + 1}', self.poolers[i])
 
         # Max pooling layers definition
         self.pool_1 = nn.MaxPool1d(self.kernel1_len, self.stride)
