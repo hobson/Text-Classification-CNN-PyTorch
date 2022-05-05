@@ -3,13 +3,13 @@ import torch
 import torch.nn as nn
 
 
-class TextClassifier(nn.ModuleList):
+class CNNTextClassifier(nn.ModuleList):
 
     def __init__(self, params):
         super().__init__()
 
         self.seq_len = params.seq_len
-        self.num_words = params.num_words
+        self.vocab_size = params.vocab_size
         self.embedding_size = params.embedding_size
         self.kernel_lengths = list(params.kernel_lengths)
         self.convolvers = []
@@ -33,7 +33,7 @@ class TextClassifier(nn.ModuleList):
         self.stride = params.stride
 
         # Embedding layer definition
-        self.embedding = nn.Embedding(self.num_words + 1, self.embedding_size, padding_idx=0)
+        self.embedding = nn.Embedding(self.vocab_size + 1, self.embedding_size, padding_idx=0)
 
         # default: 4 CNN layers with max pooling
         for i, (kernel_len, stride) in enumerate(zip(self.kernel_lengths, self.strides)):
