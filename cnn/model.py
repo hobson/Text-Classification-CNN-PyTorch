@@ -20,6 +20,7 @@ class TextClassifier(nn.ModuleList):
 
         self.dropout = nn.Dropout(0.25)
 
+        self.encoding_size = params.encoding_size
         # kernel lengths
         self.kernel1_len = 2
         self.kernel2_len = 3
