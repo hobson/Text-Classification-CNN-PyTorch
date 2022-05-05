@@ -28,7 +28,7 @@ class CNNTextClassifier(nn.ModuleList):
         self.kernel4_len = 5
 
         # Output size for each convolution
-        self.out_size = params.out_size
+        self.conv_output_size = params.conv_output_size
         # Number of strides for each convolution
         self.stride = params.stride
 
@@ -80,7 +80,7 @@ class CNNTextClassifier(nn.ModuleList):
         out_pool_4 = math.floor(out_pool_4)
 
         # Returns "flattened" vector (input for fully connected layer)
-        return (out_pool_1 + out_pool_2 + out_pool_3 + out_pool_4) * self.out_size
+        return (out_pool_1 + out_pool_2 + out_pool_3 + out_pool_4) * self.conv_output_size
 
     def forward(self, x):
         """ Takes sequence of integers (token indices) and outputs binary class label """

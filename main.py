@@ -29,7 +29,7 @@ class Parameters:
     # Model parameters
     embedding_size: int = 64
     encoding_size: int = 32
-    out_size: int = 32
+    conv_output_size: int = 32
     stride: int = 2
     strides: tuple = (2, 2, 2, 2)
 
