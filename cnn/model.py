@@ -68,7 +68,7 @@ class CNNTextClassifier(nn.ModuleList):
             out_pool_total += out_pool
 
         # Returns "flattened" vector (input for fully connected layer)
-        return (out_pool_total) * self.conv_output_size
+        return out_pool_total * self.conv_output_size
 
     def forward(self, x):
         """ Takes sequence of integers (token indices) and outputs binary class label """

@@ -59,30 +59,16 @@ class CNNTextClassifier(nn.ModuleList):
         # for kernel_len, stride in zip(convolvers, poolers):
         #     self.convolutions.append(nn.Conv1d(self.seq_len, self.encoding_size, kernel_len, stride))
         #     self.poolers.append(nn.MaxPool1d(kernel_len, stride))
-        out_pool = 0
+        out_pool_total = 0
         for kernel_len, stride in zip(self.kernel_lengths, self.strides):
-        out_conv = ((self.embedding_size - 1 * (self.kernel_lengths[0] - 1) - 1) / self.stride) + 1
-        out_conv = math.floor(out_conv)
-        out_pool = ((out_conv - 1 * (self.kernel_lengths[0] - 1) - 1) / self.strides[0]) + 1
-        out_pool = math.floor(out_pool)
-
-        out_conv_2 = ((self.embedding_size - 1 * (self.kernel_lengths[1] - 1) - 1) / self.stride) + 1
-        out_conv_2 = math.floor(out_conv_2)
-        out_pool_2 = ((out_conv_2 - 1 * (self.kernel_lengths[1] - 1) - 1) / self.stride) + 1
-        out_pool_2 = math.floor(out_pool_2)
-
-        out_conv_3 = ((self.embedding_size - 1 * (self.kernel_lengths[2] - 1) - 1) / self.stride) + 1
-        out_conv_3 = math.floor(out_conv_3)
-        out_pool_3 = ((out_conv_3 - 1 * (self.kernel_lengths[2] - 1) - 1) / self.stride) + 1
-        out_pool_3 = math.floor(out_pool_3)
-
-        out_conv_4 = ((self.embedding_size - 1 * (self.kernel_lengths[3] - 1) - 1) / self.stride) + 1
-        out_conv_4 = math.floor(out_conv_4)
-        out_pool_4 = ((out_conv_4 - 1 * (self.kernel_lengths[3] - 1) - 1) / self.stride) + 1
-        out_pool_4 = math.floor(out_pool_4)
+            out_conv = ((self.embedding_size - 1 * (kernel_len - 1) - 1) / stride) + 1
+            out_conv = math.floor(out_conv)
+            out_pool = ((out_conv - 1 * (kernel_len - 1) - 1) / stride) + 1
+            out_pool = math.floor(out_pool)
+            out_pool_total += out_pool
 
         # Returns "flattened" vector (input for fully connected layer)
-        return (out_pool + out_pool_2 + out_pool_3 + out_pool_4) * self.conv_output_size
+        return out_pool_total * self.conv_output_size
 
     def forward(self, x):
         """ Takes sequence of integers (token indices) and outputs binary class label """
@@ -97,7 +83,7 @@ class CNNTextClassifier(nn.ModuleList):
             conv_outputs.append(z)
 
         # The output of each convolutional layer is concatenated into a unique vector
-        union = torch.cat((x1, x2, x3, x4), 2)
+        union = torch.cat(conv_outputs, 2)
         union = union.reshape(union.size(0), -1)
 
         # The "flattened" vector is passed through a fully connected layer
