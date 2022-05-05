@@ -11,6 +11,12 @@ class TextClassifier(nn.ModuleList):
         self.seq_len = params.seq_len
         self.num_words = params.num_words
         self.embedding_size = params.embedding_size
+        self.kernel_lengths = list(params.kernel_lengths)
+        self.convolvers = []
+        self.poolers = []
+        self.strides = getattr(params, 'strides')
+        if not self.strides:
+            self.strides = [params.stride] * len(self.kernel_lengths)
 
         self.dropout = nn.Dropout(0.25)
 
@@ -28,11 +34,10 @@ class TextClassifier(nn.ModuleList):
         # Embedding layer definition
         self.embedding = nn.Embedding(self.num_words + 1, self.embedding_size, padding_idx=0)
 
-        # Convolution layers definition
-        self.conv_1 = nn.Conv1d(self.seq_len, self.out_size, self.kernel1_len, self.stride)
-        self.conv_2 = nn.Conv1d(self.seq_len, self.out_size, self.kernel2_len, self.stride)
-        self.conv_3 = nn.Conv1d(self.seq_len, self.out_size, self.kernel3_len, self.stride)
-        self.conv_4 = nn.Conv1d(self.seq_len, self.out_size, self.kernel4_len, self.stride)
+        # default: 4 CNN layers with max pooling
+        for kernel_len, stride in zip(self.kernel_lengths, self.strides):
+            self.convolvers.append(nn.Conv1d(self.seq_len, self.encoding_size, kernel_len, stride))
+            self.poolers.append(nn.MaxPool1d(kernel_len, stride))
 
         # Max pooling layers definition
         self.pool_1 = nn.MaxPool1d(self.kernel1_len, self.stride)
