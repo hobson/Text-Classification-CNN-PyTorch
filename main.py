@@ -23,8 +23,9 @@ DATA_DIR = Path(__file__).parent / 'data'
 @dataclass(init=True, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False)
 class Parameters:
     seq_len: int = 35
-    num_words: int = 2000
+    vocab_size: int = 2000
 
+    kernel_lengths: list = [2, 3, 4, 5]
     # Model parameters
     embedding_size: int = 64
     out_size: int = 32
@@ -95,7 +96,7 @@ def load_dataset_spacy(filepath='tweets.csv'):
     # 6. Simplified: filter infrequent words
 
     counts = Counter(chain(*tokenized_texts))
-    vocab = ['<PAD>'] + [x[0] for x in counts.most_common(HYPERPARAMS.num_words)]
+    vocab = ['<PAD>'] + [x[0] for x in counts.most_common(HYPERPARAMS.vocab_size)]
 
     # 7. Simplified: compute reverse index
 
@@ -128,7 +129,7 @@ def load_dataset_re():
     texts = [re.sub(r'[^A-Za-z0-9.?!]+', ' ', x) for x in texts]
     texts = [tokenize_re(doc) for doc in tqdm(texts)]
     counts = Counter(chain(*texts))
-    vocab = ['<PAD>'] + [x[0] for x in counts.most_common(HYPERPARAMS.num_words)]
+    vocab = ['<PAD>'] + [x[0] for x in counts.most_common(HYPERPARAMS.vocab_size)]
     tok2id = dict(zip(vocab, range(len(vocab))))
 
     # 8. Simplified: transform token sequences to integer id sequences

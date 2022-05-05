@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass(init=True, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False)
 class Parameters:
     seq_len: int = 35
-    num_words: int = 2000
+    vocab_size: int = 2000
 
     # Model parameters
     embedding_size: int = 64

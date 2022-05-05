@@ -15,7 +15,7 @@ def word_tokenize(text):
 class LabeledTexts:
 
     def __init__(self, data_filepath='tweets.csv', parameters=Parameters()):
-        self.num_words = parameters.num_words
+        self.vocab_size = parameters.vocab_size
         self.seq_len = parameters.seq_len
         self.data_dir = parameters.data_dir
         self.parameters = parameters
@@ -51,7 +51,7 @@ class LabeledTexts:
             for word in sentence:
                 fdist[word] += 1
 
-        common_words = fdist.most_common(self.num_words)
+        common_words = fdist.most_common(self.vocab_size)
 
         for idx, word in enumerate(common_words):
             self.vocabulary[word[0]] = (idx + 1)
