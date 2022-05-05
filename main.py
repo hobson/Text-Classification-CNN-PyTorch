@@ -25,13 +25,11 @@ class Parameters:
     seq_len: int = 35
     vocab_size: int = 2000
 
-    kernel_lengths: tuple = (2, 3, 4, 5)
-    # Model parameters
     embedding_size: int = 64
-    encoding_size: int = 32
+    kernel_lengths: tuple = (2, 3, 4, 5)
+    strides: tuple = (2, 2, 2, 2)
     conv_output_size: int = 32
     stride: int = 2
-    strides: tuple = (2, 2, 2, 2)
 
     # Training parameters
     epochs: int = 10

@@ -20,11 +20,7 @@ class CNNTextClassifier(nn.ModuleList):
 
         self.dropout = nn.Dropout(0.25)
 
-        self.encoding_size = params.encoding_size
-
-        # Output size for each convolution
         self.conv_output_size = params.conv_output_size
-        # Number of strides for each convolution
         self.stride = params.stride
 
         # Embedding layer definition
@@ -32,7 +28,7 @@ class CNNTextClassifier(nn.ModuleList):
 
         # default: 4 CNN layers with max pooling
         for i, (kernel_len, stride) in enumerate(zip(self.kernel_lengths, self.strides)):
-            self.convolvers.append(nn.Conv1d(self.seq_len, self.encoding_size, kernel_len, stride))
+            self.convolvers.append(nn.Conv1d(self.seq_len, self.conv_output_size, kernel_len, stride))
             # setattr(self, f'conv_{i + 1}', self.convolvers[i])
             self.poolers.append(nn.MaxPool1d(kernel_len, stride))
             # setattr(self, f'pool_{i + 1}', self.poolers[i])
@@ -55,10 +51,6 @@ class CNNTextClassifier(nn.ModuleList):
         out_pool_1 = ((out_conv_1 - 1 * (self.kernel_lengths[0] - 1) - 1) / self.stride) + 1
         out_pool_1 = math.floor(out_pool_1)
 
-        # default: 4 CNN layers with max pooling
-        # for kernel_len, stride in zip(convolvers, poolers):
-        #     self.convolutions.append(nn.Conv1d(self.seq_len, self.encoding_size, kernel_len, stride))
-        #     self.poolers.append(nn.MaxPool1d(kernel_len, stride))
         out_pool_total = 0
         for kernel_len, stride in zip(self.kernel_lengths, self.strides):
             out_conv = ((self.embedding_size - 1 * (kernel_len - 1) - 1) / stride) + 1

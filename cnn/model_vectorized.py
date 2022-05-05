@@ -20,8 +20,6 @@ class CNNTextClassifier(nn.ModuleList):
 
         self.dropout = nn.Dropout(0.25)
 
-        self.encoding_size = params.encoding_size
-
         # Output size for each convolution
         self.conv_output_size = params.conv_output_size
         # Number of strides for each convolution
